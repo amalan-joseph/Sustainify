@@ -1,0 +1,27 @@
+from pyspark.sql import SparkSession 
+from pyspark.sql.functions import from_json, col 
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType 
+schema = StructType([ 
+StructField("timestamp", StringType(), True), 
+StructField("device_id", StringType(), True), 
+StructField("energy_usage", DoubleType(), True) 
+]) 
+spark = SparkSession.builder \ 
+.appName("RealTimeEnergyDataProcessing") \ 
+.getOrCreate() 
+kafka_bootstrap_servers = "localhost:9092" 
+kafka_topic = "energy-topic" 
+df = spark.readStream \ 
+.format("kafka") \ 
+.option("kafka.bootstrap.servers", kafka_bootstrap_servers) \ 
+.option("subscribe", kafka_topic) \ 
+.load() 
+parsed_df = df.selectExpr("CAST(value AS STRING)") \ 
+.select(from_json(col("value"), schema).alias("data")) \ 
+.select("data.*") 
+average_energy_usage_df = parsed_df.groupBy("device_id").avg("energy_usage") 
+query = average_energy_usage_df.writeStream \ 
+.outputMode("complete") \ 
+.format("console") \ 
+.start() 
+query.awaitTermination()
