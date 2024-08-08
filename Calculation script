@@ -1,0 +1,17 @@
+def calculate_energy_emissions(energy_usage_kwh, emission_factor): 
+return energy_usage_kwh * emission_factor 
+def calculate_transport_emissions(distance_km, mode): 
+emission_factors = { 
+"car": 0.12, 
+"bus": 0.03, 
+"train": 0.04, 
+"bicycle": 0.0 
+} 
+return distance_km * emission_factors.get(mode, 0.0) 
+energy_usage = float(input("Enter energy usage (kWh): ")) 
+emission_factor = float(input("Enter emission factor (kg CO2e per kWh): ")) 
+print(f"Energy Emissions: {calculate_energy_emissions(energy_usage, emission_factor)} kg 
+CO2e") 
+distance = float(input("Enter distance (km): ")) 
+mode = input("Enter mode of transport (car/bus/train/bicycle): ") 
+print(f"Transport Emissions: {calculate_transport_emissions(distance, mode)} kg CO2e")
